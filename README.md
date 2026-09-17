@@ -1,4 +1,4 @@
-# Watery Traders - 同花顺自动化交易系统
+#同花顺自动化交易系统
 
 [![GitHub Stars](https://img.shields.io/github/stars/crazy3water/ths_adb_trader.svg?style=social&label=Star)](https://github.com/crazy3water/ths_adb_trader.git)
 [![GitHub Forks](https://img.shields.io/github/forks/crazy3water/ths_adb_trader.svg?style=social&label=Fork)](https://github.com/crazy3water/ths_adb_trader.git)
@@ -43,8 +43,8 @@ Watery Traders 是一个通过 uiautomator2 控制安卓手机上的同花顺APP
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/crazy3water/ths_adb_trader.git
-cd watery-traders
+git clone https://github.com/allan805/ths_trader.git
+cd ths_trader
 ```
 
 ### 2. 安装依赖
@@ -56,18 +56,6 @@ pip install -r requirements.txt
 ### 3. 安装和配置ADB
 
 #### ADB安装指南
-
-##### Windows系统
-1. 下载 [Android Platform Tools](https://developer.android.com/studio/releases/platform-tools)
-2. 解压到任意目录（如 `C:\platform-tools`）
-3. 将该目录添加到系统环境变量 `PATH`
-4. 验证安装：打开命令提示符输入 `adb version`，若显示版本信息则安装成功
-
-##### macOS系统
-1. 安装 Homebrew（如果未安装）：`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-2. 安装 ADB：`brew install android-platform-tools`
-3. 验证安装：`adb version`
-
 ##### Linux系统
 1. Ubuntu/Debian：`sudo apt-get install adb`
 2. Fedora：`sudo dnf install android-tools`
@@ -376,11 +364,7 @@ A: 可以通过以下方式查看：
 欢迎提交Issue和Pull Request！
 
 ### 开发流程
-1. Fork 本仓库
-2. 创建特性分支：`git checkout -b feature/AmazingFeature`
-3. 提交更改：`git commit -m 'Add some AmazingFeature'`
-4. 推送到分支：`git push origin feature/AmazingFeature`
-5. 提交Pull Request
+
 
 ### 开发规范
 - 代码风格：使用 black 格式化代码
@@ -394,11 +378,6 @@ A: 可以通过以下方式查看：
 
 ## 联系方式
 
-如有问题或建议，欢迎通过以下方式联系：
-
-- GitHub Issues：[提交问题](https://github.com/crazy3water/ths_adb_trader/issues)
-- Email：your.email@example.com
-
 ## 致谢
 
 感谢以下开源项目的支持：
@@ -406,8 +385,7 @@ A: 可以通过以下方式查看：
 - [uiautomator2](https://github.com/openatx/uiautomator2) - 安卓设备自动化
 - [FastAPI](https://github.com/tiangolo/fastapi) - 现代化的Python Web框架
 - [ADB](https://developer.android.com/studio/command-line/adb) - Android调试桥
-
+- [crazy3water](https://github.com/crazy3water/ths_adb_trader) - 感谢大佬公开库
 ---
 
 **Watery Traders** - 让股票交易更智能、更高效！ 🚀
-# ths_trader

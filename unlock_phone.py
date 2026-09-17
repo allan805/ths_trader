@@ -1,0 +1,176 @@
+#!/data/data/com.termux/files/usr/bin/python
+
+import subprocess
+import time
+import sys
+import os
+
+
+SECURE_DIR = os.path.expanduser("~/.ths_secure")
+PIN_FILE = os.path.join(SECURE_DIR, "pin.enc")
+KEY_FILE = os.path.join(SECURE_DIR, "pin.key")
+
+# 你的手机分辨率：1080 x 2400
+SWIPE_X = 540
+SWIPE_START_Y = 2100
+SWIPE_END_Y = 800
+SWIPE_DURATION = 500
+
+
+def run(cmd, check=True):
+    print("[ADB]", " ".join(cmd))
+    return subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=check,
+    )
+
+
+def get_pin():
+    if not os.path.isfile(PIN_FILE):
+        raise RuntimeError(f"找不到密码文件: {PIN_FILE}")
+
+    if not os.path.isfile(KEY_FILE):
+        raise RuntimeError(f"找不到密钥文件: {KEY_FILE}")
+
+    result = subprocess.run(
+        [
+            "openssl",
+            "enc",
+            "-d",
+            "-aes-256-cbc",
+            "-pbkdf2",
+            "-iter",
+            "200000",
+            "-in",
+            PIN_FILE,
+            "-pass",
+            f"file:{KEY_FILE}",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            "密码解密失败:\n" +
+            result.stderr.decode(errors="replace")
+        )
+
+    return result.stdout.decode(errors="strict")
+
+
+def get_lock_state():
+    result = subprocess.run(
+        [
+            "adb",
+            "shell",
+            "dumpsys",
+            "window",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    text = result.stdout
+
+    locked = (
+        "mDreamingLockscreen=true" in text
+        or "mKeyguardShowing=true" in text
+    )
+
+    return locked
+
+
+def unlock():
+    print("==========================================")
+    print("📱 THS 自动解锁测试")
+    print("==========================================")
+
+    print("🔐 读取加密密码...")
+    pin = get_pin()
+
+    print(f"✅ 密码解密成功（{len(pin)} 位）")
+
+    print("💡 唤醒屏幕...")
+    run(["adb", "shell", "input", "keyevent", "KEYCODE_WAKEUP"])
+    time.sleep(1)
+
+    print("🔍 检查锁屏状态...")
+
+    if not get_lock_state():
+        print("✅ 手机当前已经解锁")
+        return True
+
+    print("🔒 手机处于锁屏状态")
+    print("👆 向上滑动...")
+
+    run([
+        "adb",
+        "shell",
+        "input",
+        "swipe",
+        str(SWIPE_X),
+        str(SWIPE_START_Y),
+        str(SWIPE_X),
+        str(SWIPE_END_Y),
+        str(SWIPE_DURATION),
+    ])
+
+    time.sleep(0.8)
+
+    print("🔑 输入锁屏密码...")
+
+    # 当前锁屏密码为纯数字。
+    # 一次性发送，避免每一位都启动一次 adb shell。
+    if not pin.isdigit():
+        raise RuntimeError("当前版本只支持数字锁屏密码")
+
+    run([
+        "adb",
+        "shell",
+        "input",
+        "text",
+        pin,
+    ])
+
+    print("↵ 提交密码...")
+    run([
+        "adb",
+        "shell",
+        "input",
+        "keyevent",
+        "KEYCODE_ENTER",
+    ])
+
+    # 密码输入后等待 Android 完成验证
+    time.sleep(2)
+
+    print("🔍 再次检查锁屏状态...")
+
+    if get_lock_state():
+        print("❌ 解锁失败")
+        return False
+
+    print("==========================================")
+    print("✅ 手机解锁成功")
+    print("==========================================")
+
+    return True
+
+
+if __name__ == "__main__":
+    try:
+        ok = unlock()
+        sys.exit(0 if ok else 1)
+
+    except KeyboardInterrupt:
+        print("\n⚠️ 用户取消")
+        sys.exit(130)
+
+    except Exception as e:
+        print(f"\n❌ {e}")
+        sys.exit(1)
